@@ -13,7 +13,7 @@ const cart = computed(() => usePage().props.cart);
         >
             <Link :href="route('home')" class="flex items-center">
                 <a>
-                    <img src="https://sierraaltacafeespecial.com/wp-content/uploads/2024/11/cropped-file-150x150.png">
+                    <img src="../../../../../public/img/LogoSAE.png" alt="logo" class="w-16 h-16 rounded-full mr-2">
                 </a>
 
                 <span

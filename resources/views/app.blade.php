@@ -4,7 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'SAE') }}</title>
+        <title>{{ trim(config('app.name') . ' ' . (isset($pageTitle) ? '- ' . $pageTitle : '')) }}</title>
+        <link rel="icon" type="image/ico" href="http://[::1]:5173/public/img/LogoSAE.png">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

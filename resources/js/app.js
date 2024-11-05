@@ -11,7 +11,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
 
-//swal alart 
+//swal alart
 import VueSweetalert2 from 'vue-sweetalert2';
 // If you don't need the styles, do not connect
 import 'sweetalert2/dist/sweetalert2.min.css';
@@ -29,7 +29,7 @@ createInertiaApp({
             window.Swal =  app.config.globalProperties.$swal
 
             app.mount(el)
-            
+
     },
     progress: {
         color: '#4B5563',
