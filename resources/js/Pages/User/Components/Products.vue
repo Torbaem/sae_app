@@ -1,11 +1,11 @@
 <script setup>
 import { Link, router } from '@inertiajs/vue3';
 
- defineProps({
+defineProps({
     products:Array
- })
+})
 
- const addToCart = (product) => {
+const addToCart = (product) => {
     console.log(product)
     router.post(route('cart.store', product), {
         onSuccess: (page) => {
@@ -23,7 +23,7 @@ import { Link, router } from '@inertiajs/vue3';
 }
 </script>
 <template>
-     <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+    <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                     <div v-for="product in products" :key="product.id" class="group relative">
 
                         <div

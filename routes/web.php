@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\NosotrosController as ControllersNosotrosController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
@@ -10,6 +12,9 @@ use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\User\ProductListController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\NosotrosController;
+use App\Http\Controllers\ContactanosController;
+use App\Http\Controllers\HistoriasController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -19,10 +24,17 @@ use Inertia\Inertia;
 Route::get('/', [UserController::class,'index'])->name('home');
 Route::get('/dashboard',[DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
+
+Route::get('/nosotros', [NosotrosController::class, 'index'])->name('nosotros');
+Route::get('/contactanos',[ContactanosController::class, 'index'])->name('contactanos');
+Route::get('/historias',[HistoriasController::class, 'index'])->name('historias');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
 
     //chekcout 
     Route::prefix('checkout')->controller(CheckoutController::class)->group((function()  {

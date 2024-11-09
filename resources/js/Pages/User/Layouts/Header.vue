@@ -7,19 +7,12 @@ const auth = usePage().props.auth;
 const cart = computed(() => usePage().props.cart);
 </script>
 <template>
-    <nav class="bg-white border-gray-200 dark:bg-gray-900">
+    <nav class="bg-sage-green border-gray-200 dark:bg-gray-900">
         <div
             class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"
         >
             <Link :href="route('home')" class="flex items-center">
-                <a>
-                    <img src="https://sierraaltacafeespecial.com/wp-content/uploads/2024/11/cropped-file-150x150.png">
-                </a>
-
-                <span
-                    class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
-                    >Sierra Alta</span
-                >
+                    <img src="http://[::1]:5173/public/img/LogoSae_solo.png" alt="logo" class="w-50 h-20  mr-2">
             </Link>
             <div v-if="canLogin" class="flex items-center md:order-2">
                 <div class="mr-4">
@@ -79,7 +72,7 @@ const cart = computed(() => usePage().props.cart);
                     <Link
                         :href="route('login')"
                         type="button"
-                        class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                        class="text-white bg-gradient-to-br from-green-moss to-terracota hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-ocre dark:focus:ring-ocre font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     >
                         Login</Link
                     >
@@ -87,7 +80,7 @@ const cart = computed(() => usePage().props.cart);
                         :href="route('register')"
                         v-if="canRegister"
                         type="button"
-                        class="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                        class="text-white bg-gradient-to-r from-ocre to-terracota hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-ocre dark:focus:ring-ocre font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     >
                         Register</Link
                     >
@@ -160,33 +153,40 @@ const cart = computed(() => usePage().props.cart);
                 id="navbar-user"
             >
                 <ul
-                    class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
+                    class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-sage-green dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
                 >
                     <li>
                         <a
                             :href="route('home')"
-                            class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
+                            class="block py-2 pl-3 pr-4 text-white bg-green-moss rounded md:bg-transparent md:text-green-moss md:p-0 md:dark:text-green-moss"
                             aria-current="page"
                             >Inicio</a
                         >
                     </li>
                     <li>
                         <a
-                            href="/about"
+                            :href="route('nosotros')"
                             class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
                             >Nosotros</a
                         >
                     </li>
                     <li>
                         <a
-                            href="/pricing"
+                            :href="route('historias')"
+                            class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+                            >Historias</a
+                        >
+                    </li>   
+                    <li>
+                        <a
+                            href="/products"
                             class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
                             >Tienda</a
                         >
                     </li>
                     <li>
                         <a
-                            href="/contact"
+                            :href="route('contactanos')"
                             class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
                             >Contactanos</a
                         >
