@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y \
     git \
     curl
 
-# Instala Composer
 COPY --from=composer:2.1 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
