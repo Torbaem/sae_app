@@ -52,7 +52,7 @@ const addToCart = (product) => {
 
                                 </div>
                                 <div class="bg-blue-700 p-2 rounded-full ml-2">
-                                    <a href="detail">
+                                    <a :href="`/products/${product.id}/details`">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
                                             <path stroke-linecap="round" stroke-linejoin="round"

@@ -15,6 +15,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\NosotrosController;
 use App\Http\Controllers\ContactanosController;
 use App\Http\Controllers\HistoriasController;
+use App\Http\Controllers\EditableContentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,6 +34,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+
+//////Sección editable //////
+    Route::middleware(['web', 'admin'])->group(function () {
+        Route::post('/api/update-content', [EditableContentController::class, 'updateContent']);
+        Route::post('/api/create-content', [EditableContentController::class, 'createContent']);
+        Route::delete('/api/delete-content', [EditableContentController::class, 'deleteContent']);
+    });
+    
+    // Rutas públicas
+    Route::get('/api/editable-content', [EditableContentController::class, 'getContentBySection']);
+    Route::get('/check-admin', [EditableContentController::class, 'checkAdminStatus']);
+////////////////////////////////////////
+
+
 
 
 
@@ -58,6 +75,8 @@ Route::prefix('cart')->controller(CartController::class)->group(function () {
 Route::prefix('products')->controller(ProductListController::class)->group(function ()  {
     Route::get('/','index')->name('products.index');
     
+
+    Route::get('/{id}/details', 'show')->name('products.details');
 });
 
 

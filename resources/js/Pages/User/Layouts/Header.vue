@@ -7,12 +7,12 @@ const auth = usePage().props.auth;
 const cart = computed(() => usePage().props.cart);
 </script>
 <template>
-    <nav class="bg-sage-green border-gray-200 dark:bg-gray-900">
+    <nav class="bg-terracotta border-gray-200 dark:bg-gray-900">
         <div
             class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"
         >
             <Link :href="route('home')" class="flex items-center">
-                    <img src="http://[::1]:5173/public/img/LogoSae_solo.png" alt="logo" class="w-50 h-20  mr-2">
+                    <img src="http://[::1]:5173/public/img/LogoSae.png" alt="logo" class="w-50 h-20  mr-2">
             </Link>
             <div v-if="canLogin" class="flex items-center md:order-2">
                 <div class="mr-4">
@@ -74,7 +74,7 @@ const cart = computed(() => usePage().props.cart);
                         type="button"
                         class="text-white bg-gradient-to-br from-green-moss to-terracota hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-ocre dark:focus:ring-ocre font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     >
-                        Login</Link
+                        Iniciar Sesión</Link
                     >
                     <Link
                         :href="route('register')"
@@ -82,7 +82,7 @@ const cart = computed(() => usePage().props.cart);
                         type="button"
                         class="text-white bg-gradient-to-r from-ocre to-terracota hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-ocre dark:focus:ring-ocre font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     >
-                        Register</Link
+                        Registrarse</Link
                     >
                 </div>
 
@@ -103,14 +103,35 @@ const cart = computed(() => usePage().props.cart);
                         >
                     </div>
                     <ul class="py-2" aria-labelledby="user-menu-button">
+
+                        <li>
+                            <Link
+                                href="/profile"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                            >
+                                Mi Perfil</Link
+                            >
+                        </li>
+
                         <li>
                             <Link
                                 :href="route('dashboard')"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                             >
-                                Dashboard</Link
+                                Mis Pedidos</Link
                             >
                         </li>
+
+
+                        <li v-if="auth.user.isAdmin">
+                            <Link
+                                :href="route('admin.dashboard')"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                            >
+                                Panel de Administrador
+                            </Link>
+                        </li>
+
 
                         <li>
                             <Link
@@ -118,7 +139,7 @@ const cart = computed(() => usePage().props.cart);
                                 method="post"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                             >
-                                Sign out</Link
+                                Cerrar Sesión</Link
                             >
                         </li>
                     </ul>
@@ -153,7 +174,7 @@ const cart = computed(() => usePage().props.cart);
                 id="navbar-user"
             >
                 <ul
-                    class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-sage-green dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
+                    class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-terracotta dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
                 >
                     <li>
                         <a

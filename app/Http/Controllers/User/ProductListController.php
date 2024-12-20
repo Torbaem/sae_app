@@ -29,4 +29,13 @@ class ProductListController extends Controller
             ]
         );
     }
+    public function show($id)
+    {
+        $product = Product::with(['category', 'brand', 'product_images'])
+            ->findOrFail($id);
+    
+        return Inertia::render('User/ProductDetails', [
+            'product' => $product
+        ]);
+    }
 }
