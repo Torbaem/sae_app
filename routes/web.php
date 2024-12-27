@@ -23,31 +23,31 @@ use Inertia\Inertia;
 //user rotues
 
 Route::get('/', [UserController::class,'index'])->name('home');
+
+
+
 Route::get('/dashboard',[DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 
 Route::get('/nosotros', [NosotrosController::class, 'index'])->name('nosotros');
+
+
 Route::get('/contactanos',[ContactanosController::class, 'index'])->name('contactanos');
+
+
+// Historias  
 Route::get('/historias',[HistoriasController::class, 'index'])->name('historias');
+
+Route::post('/historias', [HistoriasController::class, 'store'])->name('historias.store');
+Route::put('/historias/{producer}', [HistoriasController::class, 'update'])->name('historias.update');
+Route::delete('/historias/{producer}', [HistoriasController::class, 'destroy'])->name('historias.destroy');
+Route::delete('/historias/image/{id}', [HistoriasController::class, 'deleteImage'])->name('historias.deleteImage');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
-
-//////Sección editable //////
-    Route::middleware(['web', 'admin'])->group(function () {
-        Route::post('/api/update-content', [EditableContentController::class, 'updateContent']);
-        Route::post('/api/create-content', [EditableContentController::class, 'createContent']);
-        Route::delete('/api/delete-content', [EditableContentController::class, 'deleteContent']);
-    });
-    
-    // Rutas públicas
-    Route::get('/api/editable-content', [EditableContentController::class, 'getContentBySection']);
-    Route::get('/check-admin', [EditableContentController::class, 'checkAdminStatus']);
-////////////////////////////////////////
 
 
 

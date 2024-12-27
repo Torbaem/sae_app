@@ -35,7 +35,7 @@
                     </a>
                 </div>
 
-                <!-- Contenedor de la imagen que ahora es responsivo -->
+                <!-- Contenedor de la imagen  responsivo -->
                 <div class="lg:col-span-5 flex justify-center items-center lg:items-end">
                     <img
                         src="img/Cafe_xilitla.png"
