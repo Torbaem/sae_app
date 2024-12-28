@@ -23,6 +23,11 @@ use Inertia\Inertia;
 //user rotues
 
 Route::get('/', [UserController::class,'index'])->name('home');
+//Hero section 
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/hero/update', [UserController::class, 'update'])->name('hero.update');
+    Route::delete('/hero/image/{id}', [UserController::class, 'deleteHeroImage'])->name('hero.deleteImage');
+});
 
 
 
@@ -35,7 +40,7 @@ Route::get('/nosotros', [NosotrosController::class, 'index'])->name('nosotros');
 Route::get('/contactanos',[ContactanosController::class, 'index'])->name('contactanos');
 
 
-// Historias  
+// Stories section
 Route::get('/historias',[HistoriasController::class, 'index'])->name('historias');
 
 Route::post('/historias', [HistoriasController::class, 'store'])->name('historias.store');

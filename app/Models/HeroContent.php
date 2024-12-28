@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class HeroContent extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'title',
+        'description',
+        'url',
+    ];
+
+    // Relación con las imágenes
+    public function images()
+    {
+        return $this->hasMany(HeroImage::class);
+    }
+}

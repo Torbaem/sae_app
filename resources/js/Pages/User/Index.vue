@@ -5,7 +5,9 @@ import Hero from './Layouts/Hero.vue';
 import Products from '../User/Components/Products.vue'
 //products list 
 defineProps({
-    products: Array
+    products: Array,
+    heroContent: Object,
+    heroImage: Object,
 })
 
 
@@ -13,7 +15,7 @@ defineProps({
 <template>
     <UserLayouts>
         <!-- here section  -->
-        <Hero></Hero>
+        <Hero :heroContent="heroContent" :heroImage="heroImage"></Hero>
         <!-- end -->
         <div class="bg-white">
             <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
