@@ -1,6 +1,281 @@
 <script setup>
-import UserLayouts from './Layouts/UserLayouts.vue';
+// Importaciones necesarias
+import UserLayouts from "./Layouts/UserLayouts.vue";
+import { defineProps, ref, watch } from "vue";
+import { usePage } from "@inertiajs/vue3";  // Para acceder a las props de la página
+import axios from "axios";
 
+// Definición de props - Recibe un array de contenidos desde el componente padre
+const props = defineProps({
+    contents: {
+        type: Array,
+        required: true,
+    },
+});
+
+// Estados reactivos para manejar la interfaz y datos
+const auth = usePage().props.auth;  // Información del usuario autenticado
+const selectedContent = ref(null);   // Contenido seleccionado para editar
+const loading = ref(false);          // Estado de carga para operaciones asíncronas
+const errorMessage = ref("");        // Mensajes de error
+const successMessage = ref("");      // Mensajes de éxito
+const dialogVisible = ref(false);    // Control de visibilidad del modal
+const imagePreview = ref(null);      // Preview de imágenes
+const selectedIcon = ref(null);      // Icono seleccionado (si se usa)
+const currentImage = ref(null);      // Imagen actual en edición
+
+// Estado inicial del formulario
+const initialFormState = {
+    title: "",
+    content: "",
+    type: "",
+    images: [], // Array para almacenar las imágenes
+};
+
+// Referencia reactiva al formulario
+const form = ref({ ...initialFormState });
+
+/**
+ * Obtiene la ruta de la imagen para un contenido dado
+ * @param {Object} content - Objeto de contenido
+ * @returns {string} - URL de la imagen o imagen placeholder
+ */
+const getImagePath = (content) => {
+    if (content?.images && content.images.length > 0) {
+        return `/${content.images[0].image_path}`;
+    }
+    return "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png";
+};
+
+/**
+ * Resetea el formulario y todos los estados relacionados
+ */
+const resetForm = () => {
+    form.value = { ...initialFormState };
+    imagePreview.value = null;
+    selectedContent.value = null;
+    selectedIcon.value = null;
+    currentImage.value = null;
+    dialogVisible.value = false;
+};
+
+/**
+ * Maneja la carga de archivos de imagen
+ * @param {Event} event - Evento del input file
+ */
+const handleFileUpload = (event) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    // Inicialización de arrays si es necesario
+    if (!Array.isArray(form.value.images)) {
+        form.value.images = [];
+    }
+    if (!Array.isArray(imagePreview.value)) {
+        imagePreview.value = [];
+    }
+
+    // Procesa cada archivo
+    Array.from(files).forEach((file) => {
+        if (file.type.startsWith("image/")) {
+            form.value.images.push(file);
+            // Crear preview de la imagen
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.value.push(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+};
+
+/**
+ * Valida los campos requeridos del formulario
+ * @returns {boolean} - true si el formulario es válido
+ */
+const validateForm = () => {
+    if (!form.value.title?.trim()) {
+        errorMessage.value = "El título es requerido";
+        return false;
+    }
+    if (!form.value.content?.trim()) {
+        errorMessage.value = "El contenido es requerido";
+        return false;
+    }
+    if (!form.value.type) {
+        errorMessage.value = "El tipo es requerido";
+        return false;
+    }
+    return true;
+};
+
+/**
+ * Crea un nuevo contenido
+ * Utiliza FormData para manejar la carga de archivos
+ */
+const createContent = async () => {
+    try {
+        if (!validateForm()) return;
+        loading.value = true;
+
+        const formData = new FormData();
+        formData.append("title", form.value.title.trim());
+        formData.append("content", form.value.content.trim());
+        formData.append("type", form.value.type);
+
+        // Agregar imágenes al FormData
+        form.value.images.forEach((image, index) => {
+            if (image instanceof File) {
+                formData.append(`images[${index}]`, image);
+            }
+        });
+
+        await axios.post("/admin/nosotros", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        successMessage.value = "Contenido creado exitosamente";
+        resetForm();
+        setTimeout(() => location.reload(), 1500);
+    } catch (error) {
+        console.error(error);
+        errorMessage.value =
+            error.response?.data?.message || "Error al crear el contenido";
+    } finally {
+        loading.value = false;
+    }
+};
+
+/**
+ * Guarda o actualiza el contenido
+ * Maneja tanto la creación como la actualización
+ */
+const saveContent = async () => {
+    try {
+        if (!validateForm()) return;
+        loading.value = true;
+
+        const formData = new FormData();
+        formData.append("title", form.value.title.trim());
+        formData.append("content", form.value.content.trim());
+        formData.append("type", form.value.type);
+
+        // Manejo seguro de imágenes
+        if (Array.isArray(form.value.images)) {
+            form.value.images.forEach((image, index) => {
+                if (image instanceof File) {
+                    formData.append(`images[${index}]`, image);
+                }
+            });
+        }
+
+        // Determina si es una actualización o creación
+        if (selectedContent.value) {
+            formData.append("_method", "PUT"); // Laravel method spoofing
+            await axios.post(
+                `/admin/nosotros/${selectedContent.value.id}`,
+                formData,
+                {
+                    headers: { "Content-Type": "multipart/form-data" },
+                }
+            );
+        } else {
+            await axios.post("/admin/nosotros", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+        }
+
+        successMessage.value = selectedContent.value
+            ? "Contenido actualizado exitosamente"
+            : "Contenido creado exitosamente";
+
+        resetForm();
+        setTimeout(() => location.reload(), 1500);
+    } catch (error) {
+        console.error(error);
+        errorMessage.value =
+            error.response?.data?.message || "Error al procesar la solicitud";
+    } finally {
+        loading.value = false;
+    }
+};
+
+/**
+ * Elimina un contenido específico
+ * @param {Object} content - Contenido a eliminar
+ */
+const deleteContent = async (content) => {
+    try {
+        if (confirm("¿Estás seguro de que deseas eliminar este contenido?")) {
+            loading.value = true;
+            await axios.delete(`/admin/nosotros/${content.id}`);
+            successMessage.value = "Contenido eliminado exitosamente";
+            setTimeout(() => location.reload(), 500);
+        }
+    } catch (error) {
+        console.error(error);
+        errorMessage.value =
+            error.response?.data?.message || "Error al eliminar el contenido";
+    } finally {
+        loading.value = false;
+    }
+};
+
+/**
+ * Prepara el formulario para editar un contenido existente
+ * @param {Object} content - Contenido a editar
+ */
+const editContent = (content) => {
+    selectedContent.value = content;
+    form.value = {
+        title: content.title,
+        content: content.content,
+        type: content.type,
+        images: [], // Inicializar como array vacío
+    };
+
+    // Manejo de imágenes existentes
+    if (content.images && content.images.length > 0) {
+        currentImage.value = content.images[0];
+        imagePreview.value = [getImagePath(content)];
+    } else {
+        currentImage.value = null;
+        imagePreview.value = [];
+    }
+
+    dialogVisible.value = true;
+};
+
+/**
+ * Elimina una imagen específica
+ * @param {number} imageId - ID de la imagen a eliminar
+ */
+const deleteImage = async (imageId) => {
+    if (!confirm("¿Está seguro de que desea eliminar esta imagen?")) return;
+
+    try {
+        loading.value = true;
+        await axios.delete(`/admin/nosotros/images/${imageId}`);
+        
+        // Resetear estados relacionados con la imagen
+        currentImage.value = null;
+        imagePreview.value = null;
+        form.value.images = [];  // Cambiado de null a array vacío
+        
+        if (selectedContent.value) {
+            selectedContent.value.images = [];
+        }
+        
+        successMessage.value = "Imagen eliminada exitosamente";
+    } catch (error) {
+        console.error(error);
+        errorMessage.value = "Error al eliminar la imagen";
+    } finally {
+        loading.value = false;
+    }
+};
 </script>
 
 <template>
@@ -8,48 +283,190 @@ import UserLayouts from './Layouts/UserLayouts.vue';
         <section class="bg-white dark:bg-gray-900">
             <div class="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
                 <div class="max-w-screen-md mb-8 lg:mb-16">
-                    <h2 class="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">Acerca de Nosotros</h2>
-                    <p class="text-gray-500 sm:text-xl dark:text-gray-400">Cooperativa Café Especial</p>
+                    <h2
+                        class="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white"
+                    >
+                        Acerca de Nosotros
+                    </h2>
+                    <p class="text-gray-500 sm:text-xl dark:text-gray-400">
+                        Cooperativa Café Especial
+                    </p>
                 </div>
-                <div class="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:space-y-0">
-            <div>
-                <div class="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
-                    <svg fill="#000000" height="100px" width="100px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 490 490" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M488.659,72.311L490,51.764l-49.146-3.137L437.678,0l-20.765,1.327l3.507,53.716l-15.057,14.898l-2.329-35.663 l-20.766,1.327l3.507,53.717l-12.885,12.749C333.293,67.331,281.236,46.2,224.275,46.2C100.611,46.2,0,145.742,0,268.098 S100.611,490,224.275,490c123.663,0,224.264-99.547,224.264-221.902c0-58.606-23.091-111.969-60.731-151.675l13.348-13.208 l52.859,3.374l1.341-20.547l-34.611-2.209l15.055-14.896L488.659,72.311z M427.732,268.098 c0,111.007-91.274,201.316-203.457,201.316c-112.193,0-203.468-90.309-203.468-201.316c0-111.002,91.275-201.31,203.468-201.31 c51.221,0,98.077,18.834,133.882,49.861l-29.422,29.112c-28.221-23.628-64.686-37.9-104.46-37.9 c-89.303,0-161.955,71.883-161.955,160.237c0,88.359,72.652,160.243,161.955,160.243c89.293,0,161.945-71.883,161.945-160.243 c0-41.605-16.113-79.553-42.484-108.068l29.356-29.046C406.969,166.955,427.732,215.169,427.732,268.098z M224.101,278.401 l62.381-61.723c11.786,13.936,18.896,31.868,18.896,51.419c0,44.25-36.381,80.252-81.103,80.252 c-44.724,0-81.115-36.002-81.115-80.252s36.391-80.247,81.115-80.247c17.473,0,33.659,5.513,46.914,14.849l-61.798,61.146 L224.101,278.401z M286.07,187.975c-17.155-12.984-38.579-20.711-61.795-20.711c-56.204,0-101.922,45.236-101.922,100.834 c0,55.604,45.718,100.839,101.922,100.839c56.192,0,101.91-45.235,101.91-100.839c0-25.227-9.413-48.319-24.945-66.021 l27.774-27.481c22.61,24.773,36.398,57.573,36.398,93.502c0,77.005-63.316,139.656-141.138,139.656 c-77.834,0-141.148-62.65-141.148-139.656c0-77.004,63.315-139.65,141.148-139.65c34.038,0,65.301,11.985,89.704,31.913 L286.07,187.975z"></path> </g></svg>
+                <div
+                    class="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:space-y-0"
+                >
+                    <div
+                        v-for="content in contents.filter(
+                            (c) => c.type === 'card'
+                        )"
+                        :key="content.id"
+                    >
+                        <div
+                            class="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900"
+                        >
+                            <img
+                                :src="getImagePath(content)"
+                                class="h-auto w-auto object-contain"
+                                :alt="content.title"
+                            />
+                        </div>
+                        <h3 class="mb-2 text-xl font-bold dark:text-white">
+                            {{ content.title }}
+                        </h3>
+                        <p class="text-gray-500 dark:text-gray-400">
+                            {{ content.content }}
+                        </p>
+                        <div v-if="auth?.user?.isAdmin" class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-200">
+                            <button
+                                @click="editContent(content)"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                            >
+                            <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-5 w-5"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+                                            />
+                                        </svg>
+                                Editar
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <h3 class="mb-2 text-xl font-bold dark:text-white">Mision</h3>
-                <p class="text-gray-500 dark:text-gray-400">Somos una empresa comprometida con el desarrollo integral de nuestras comunidades, a través de la producción cooperativa de café agroecológico. Nos dedicamos a cultivar y comercializar café de la más alta calidad, promoviendo prácticas agrícolas sostenibles y generando oportunidades económicas equitativas para nuestros socios. Buscamos fortalecer el tejido social, preservar el medio ambiente y mejorar la calidad de vida de quienes forman parte de nuestra organización, garantizando la excelencia en cada taza de café que producimos.</p>
             </div>
-            <div>
-                <div class="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" /></svg>
-                </div>
-                <h3 class="mb-2 text-xl font-bold dark:text-white">Vision</h3>
-                <p class="text-gray-500 dark:text-gray-400">Ser una cooperativa de producción rural de café orgánico que transforma positivamente las vidas de nuestros socios y comunidades, destacándonos a nivel nacional e internacional por nuestro compromiso con la calidad, la sostenibilidad y la equidad. Nuestra visión es crear un modelo ejemplar de desarrollo económico y social, en el que el cultivo del café no solo genere ingresos, sino que también actúe como un motor de progreso, bienestar y orgullo para todos los involucrados.</p>
-            </div>
-            <div>
-                <div class="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
-                    <svg fill="#000000" width="100px" height="100px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>hands-holding-heart</title> <path d="M30.822 14.245l-0.023-0.974c-0.016-1.579-0.082-2.873-0.207-4.074-0.059-0.623-0.147-1.18-0.267-1.725l0.017 0.093c-0.071-0.439-0.238-0.83-0.478-1.164l0.006 0.008c-0.091-0.112-0.211-0.197-0.35-0.242l-0.005-0.001c-0.304-0.126-0.657-0.199-1.026-0.199-0.531 0-1.026 0.151-1.446 0.412l0.012-0.007c-0.698 0.541-1.166 1.35-1.251 2.269l-0.001 0.013-0.509 5.008c-0.292-0.155-0.639-0.246-1.007-0.246-0.861 0-1.605 0.498-1.961 1.222l-0.006 0.013-1.555 2.693-2.953 2.819c-0.051 0.048-0.095 0.104-0.13 0.165l-0.002 0.003-0.832 1.44-0.43-0.248c-0.016-0.009-0.035-0.009-0.052-0.017-0.092-0.045-0.201-0.072-0.316-0.072s-0.223 0.026-0.32 0.074l0.004-0.002c-0.017 0.008-0.036 0.008-0.053 0.017l-0.43 0.248-0.831-1.44c-0.037-0.064-0.081-0.12-0.131-0.168l-0-0-2.953-2.819-1.555-2.693c-0.304-0.565-0.813-0.986-1.425-1.168l-0.017-0.004c-0.16-0.044-0.344-0.069-0.534-0.069-0.366 0-0.71 0.094-1.009 0.259l0.011-0.005-0.508-4.997c-0.083-0.937-0.552-1.75-1.246-2.288l-0.007-0.005c-0.408-0.254-0.904-0.405-1.435-0.405-0.37 0-0.722 0.073-1.044 0.206l0.018-0.007c-0.144 0.046-0.265 0.131-0.354 0.242l-0.001 0.001c-0.24 0.337-0.41 0.74-0.479 1.176l-0.002 0.016c-0.101 0.445-0.186 0.99-0.237 1.545l-0.004 0.053c-0.124 1.197-0.189 2.491-0.207 4.072-0.004 0.328-0.014 0.656-0.023 0.984-0.019 0.314-0.030 0.682-0.030 1.052 0 0.701 0.039 1.392 0.116 2.072l-0.008-0.083c0.358 2.481 1.583 4.625 3.354 6.156l0.013 0.011c1.048 0.83 1.971 1.736 2.791 2.73l0.025 0.031-0.597 0.345c-0.226 0.132-0.375 0.374-0.375 0.65 0 0.138 0.037 0.268 0.102 0.379l-0.002-0.004 1.605 2.781c0.099 0.17 0.259 0.296 0.45 0.348l0.005 0.001c0.057 0.016 0.123 0.025 0.191 0.025 0.001 0 0.002 0 0.004 0h-0c0.001 0 0.001 0 0.002 0 0.137 0 0.266-0.037 0.377-0.102l-0.004 0.002 6.753-3.9 6.757 3.9c0.108 0.062 0.237 0.099 0.375 0.1h0c0.276-0.001 0.518-0.15 0.648-0.371l0.002-0.004 1.605-2.781c0.062-0.108 0.099-0.237 0.099-0.375 0-0.069-0.009-0.135-0.026-0.198l0.001 0.005c-0.053-0.196-0.179-0.357-0.346-0.455l-0.004-0.002-0.598-0.345c0.853-1.032 1.784-1.944 2.802-2.751l0.038-0.029c1.77-1.54 2.987-3.677 3.337-6.094l0.006-0.054c0.068-0.595 0.107-1.285 0.107-1.983 0-0.376-0.011-0.748-0.033-1.118l0.002 0.051zM5.674 22.307c-1.493-1.312-2.521-3.121-2.827-5.166l-0.006-0.047c-0.061-0.537-0.095-1.159-0.095-1.789 0-0.353 0.011-0.704 0.032-1.051l-0.002 0.048c0.011-0.338 0.021-0.676 0.024-1.014 0.017-1.534 0.080-2.784 0.199-3.936 0.050-0.554 0.128-1.052 0.236-1.539l-0.015 0.080c0.026-0.116 0.058-0.258 0.097-0.373 0.1-0.031 0.214-0.049 0.333-0.049 0.206 0 0.4 0.054 0.567 0.149l-0.006-0.003c0.334 0.297 0.555 0.714 0.594 1.183l0 0.007 0.714 7.020c0.012 0.111 0.046 0.213 0.099 0.302l-0.002-0.004 3.218 5.573c0.131 0.231 0.375 0.385 0.655 0.385 0.414 0 0.75-0.336 0.75-0.75 0-0.142-0.040-0.275-0.108-0.388l0.002 0.003-2.815-4.876c-0.316-0.549-0.129-0.918 0.152-1.080 0.276-0.165 0.693-0.143 1.012 0.408l1.608 2.786c0.037 0.064 0.081 0.119 0.132 0.168l0 0 2.953 2.82 0.778 1.346-5.112 2.951c-0.938-1.187-1.979-2.227-3.128-3.134l-0.040-0.030zM22.904 28.975l-6.477-3.738c-0.011-0.006-0.024-0.006-0.035-0.011-0.066-0.035-0.143-0.061-0.225-0.074l-0.004-0.001-0.054-0.004c-0.018-0.002-0.039-0.002-0.061-0.002-0.058 0-0.115 0.007-0.17 0.020l0.005-0.001c-0.024 0.006-0.046 0.015-0.069 0.022-0.051 0.012-0.096 0.027-0.139 0.045l0.005-0.002-6.487 3.746-0.855-1.48 7.71-4.451 7.71 4.451zM29.258 17.095c-0.309 2.082-1.328 3.882-2.8 5.185l-0.009 0.008c-1.198 0.943-2.246 1.989-3.162 3.144l-0.030 0.039-5.111-2.95 0.778-1.346 2.953-2.82c0.051-0.048 0.095-0.104 0.131-0.165l0.002-0.003 1.609-2.786c0.11-0.221 0.298-0.39 0.527-0.473l0.007-0.002c0.047-0.012 0.1-0.019 0.156-0.019 0.118 0 0.229 0.032 0.324 0.087l-0.003-0.002c0.144 0.082 0.251 0.216 0.296 0.375l0.001 0.004c0.010 0.052 0.016 0.113 0.016 0.174 0 0.196-0.060 0.378-0.163 0.529l0.002-0.003-2.816 4.876c-0.063 0.108-0.1 0.237-0.1 0.375 0 0.277 0.149 0.518 0.372 0.649l0.004 0.002c0.107 0.060 0.234 0.096 0.37 0.096 0.277 0 0.519-0.147 0.653-0.368l0.002-0.003 3.219-5.573c0.051-0.086 0.085-0.187 0.095-0.296l0-0.003 0.713-7.027c0.042-0.473 0.263-0.887 0.594-1.18l0.002-0.002c0.163-0.091 0.357-0.144 0.563-0.144 0.117 0 0.231 0.017 0.338 0.049l-0.008-0.002c0.035 0.106 0.072 0.244 0.101 0.384l0.005 0.026c0.089 0.396 0.164 0.882 0.209 1.377l0.003 0.047c0.121 1.152 0.184 2.402 0.199 3.935 0.004 0.334 0.014 0.669 0.025 1.003 0.019 0.299 0.029 0.648 0.029 1 0 0.635-0.035 1.263-0.102 1.88l0.007-0.076zM15.354 14.643c0.138 0.153 0.336 0.248 0.557 0.248s0.419-0.095 0.556-0.247l0.001-0.001 4.984-5.523c0.958-0.811 1.561-2.014 1.561-3.358 0-1.18-0.466-2.252-1.223-3.041l0.001 0.002c-0.775-0.756-1.835-1.223-3.005-1.223-1.109 0-2.12 0.42-2.884 1.109l0.004-0.003c-0.719-0.587-1.646-0.943-2.657-0.943-0.042 0-0.083 0.001-0.124 0.002l0.006-0c-1.132 0.046-2.144 0.526-2.88 1.277l-0.001 0.001c-0.791 0.769-1.282 1.843-1.282 3.031 0 1.241 0.535 2.357 1.387 3.13l0.004 0.003zM11.311 4.001c0.494-0.51 1.181-0.831 1.943-0.845l0.003-0c0.843 0.027 1.595 0.399 2.122 0.979l0.002 0.002c0.136 0.136 0.323 0.22 0.53 0.22s0.395-0.084 0.53-0.22v0c0.533-0.7 1.366-1.147 2.304-1.147 0.77 0 1.47 0.301 1.987 0.793l-0.001-0.001c0.491 0.516 0.792 1.216 0.792 1.986 0 0.938-0.447 1.771-1.141 2.299l-0.007 0.005-0.025 0.028-4.439 4.92-4.465-4.948c-0.599-0.546-0.974-1.33-0.975-2.201v-0c0.034-0.736 0.349-1.392 0.839-1.87l0.001-0.001z"></path> </g></svg>                    
-                </div>
-                <h3 class="mb-2 text-xl font-bold dark:text-white">Valores</h3>
-                <p class="text-gray-500 dark:text-gray-400">Sostenibilidad, equidad, calidad, colaboración, innovación, responsabilidad social, transparencia, respeto, compromiso comunitario, integridad, autonomía, aprendizaje continuo, resiliencia, cuidado del bienestar, diversidad e inclusión.</p>
-            </div>
-                </div>
-            </div>
-</section>
+        </section>
 
+        <section class="bg-white dark:bg-gray-900">
+            <div
+                v-for="content in contents.filter(
+                    (c) => c.type === 'container'
+                )"
+                :key="content.id"
+                class="gap-16 items-center py-8 px-4 mx-auto max-w-screen-xl lg:grid lg:grid-cols-2 lg:py-16 lg:px-6"
+            >
+                <div
+                    class="font-light text-gray-500 sm:text-lg dark:text-gray-400"
+                >
+                    <h2
+                        class="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white"
+                    >
+                        {{ content.title }}
+                    </h2>
+                    <p class="mb-4">
+                        {{ content.content }}
+                    </p>
+                </div>
+                <div class="grid grid gap-4 mt-8">
+                    <img
+                        :src="getImagePath(content)"
+                        :alt="content.title"
+                        />
+                </div>
+                <div v-if="auth?.user?.isAdmin" class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-200">
+                    <button
+                        @click="editContent(content)"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                    >
+                    <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-5 w-5"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+                                            />
+                                        </svg>
+                        Editar
+                    </button>
+                </div>
+            </div>
+        </section>
 
-<section class="bg-white dark:bg-gray-900">
-    <div class="gap-16 items-center py-8 px-4 mx-auto max-w-screen-xl lg:grid lg:grid-cols-2 lg:py-16 lg:px-6">
-        <div class="font-light text-gray-500 sm:text-lg dark:text-gray-400">
-            <h2 class="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">Alta Sierra Café Xilitla</h2>
-            <p class="mb-4">En México el programa de Sembrando Vida creado por la secretaria de Bienestar que busca contribuir al bienestar social de sembradoras y sembradores a través del impulso de la autosuficiencia alimentaria, con acciones que favorezcan la reconstrucción del tejido social y la recuperación del medio ambiente, a través de la implementación de parcelas con sistemas productivos agroforestales.</p>
-            <p>La creación de grupos de productores que permitieran mejorar su parcelas productivas e incentivando mejoras a sus procesos, lo cual en el municipio de Xilitla detono en el fortalecimiento de la producción de café en las que participan las comunidades como el PETATILLO, EL CAÑON, LA PALMA Y RANCHO NUEVO  .</p>
-        </div>
-        <div class="grid grid-cols-2 gap-4 mt-8">
-            <img class="w-full rounded-lg" src="http://[::1]:5173/public\img\NuestrosProductores2.jpg" alt="Nuestros Productores">
-            <img class="mt-4 w-full lg:mt-10 rounded-lg" src="http://[::1]:5173/public\img\NuestrosProductores.jpg" alt="Nuestros Productores 2">
-        </div>
-    </div>
-</section>
+        <!-- Edit Modal -->
+        <el-dialog
+            v-model="dialogVisible"
+            :title="
+                selectedContent ? 'Editar Contenido' : 'Crear Nuevo Contenido'
+            "
+            width="60%"
+        >
+            <form @submit.prevent="saveContent" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700"
+                        >Título</label
+                    >
+                    <input
+                        v-model="form.title"
+                        type="text"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700"
+                        >Contenido</label
+                    >
+                    <textarea
+                        v-model="form.content"
+                        required
+                        rows="4"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                    ></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700"
+                        >Imagen</label
+                    >
+                    <div v-if="currentImage" class="mt-2">
+                        <img
+                            :src="imagePreview"
+                            class="h-32 w-32 object-cover rounded"
+                        />
+                        <button
+                            @click="deleteImage(currentImage.id)"
+                            class="mt-2 text-red-500"
+                        >
+                            Eliminar imagen
+                        </button>
+                    </div>
+                    <input
+                        v-else
+                        type="file"
+                        @change="handleFileUpload"
+                        accept="image/*"
+                        class="mt-1"
+                    />
+                </div>
+
+                <div v-if="errorMessage" class="text-red-500">
+                    {{ errorMessage }}
+                </div>
+                <div v-if="successMessage" class="text-green-500">
+                    {{ successMessage }}
+                </div>
+
+                <div class="flex justify-end space-x-2">
+                    <button
+                        type="button"
+                        @click="dialogVisible = false"
+                        class="px-4 py-2 border rounded"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        :disabled="loading"
+                        class="px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                        {{ loading ? "Guardando..." : "Guardar" }}
+                    </button>
+                </div>
+            </form>
+        </el-dialog>
     </UserLayouts>
 </template>

@@ -34,8 +34,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::get('/dashboard',[DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 
+//About us
 Route::get('/nosotros', [NosotrosController::class, 'index'])->name('nosotros');
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::prefix('admin')->group(function () {
+        Route::post('/nosotros', [NosotrosController::class, 'store'])->name('nosotros.store');
+        Route::put('/nosotros/{content}', [NosotrosController::class, 'update'])->name('nosotros.update');
+        Route::delete('/nosotros/{content}', [NosotrosController::class, 'destroy'])->name('nosotros.destroy');
+        Route::delete('/nosotros/images/{image}', [NosotrosController::class, 'destroyImage'])->name('nosotros.images.destroy');
+    });
+});
 
 Route::get('/contactanos',[ContactanosController::class, 'index'])->name('contactanos');
 
