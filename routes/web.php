@@ -46,7 +46,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
+
+//contact
 Route::get('/contactanos',[ContactanosController::class, 'index'])->name('contactanos');
+Route::post('/contactanos', [ContactanosController::class, 'store'])->name('contactanos.store');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::prefix('admin')->group(function () {
+        Route::post('/contactanos/content', [ContactanosController::class, 'createContent'])->name('contactanos.content.create');
+        Route::put('/contactanos/{content}', [ContactanosController::class, 'update'])->name('contactanos.update');
+        Route::delete('/contactanos/{content}', [ContactanosController::class, 'destroy'])->name('contactanos.destroy');
+        Route::delete('/contactanos/images/{image}', [ContactanosController::class, 'destroyImage'])->name('contactanos.images.destroy');
+    });
+});
 
 
 // Stories section
