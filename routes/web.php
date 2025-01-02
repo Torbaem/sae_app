@@ -3,6 +3,9 @@
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\AdminContactMessagesController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\NosotrosController as ControllersNosotrosController;
 use App\Http\Controllers\ProfileController;
@@ -57,6 +60,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/contactanos/{content}', [ContactanosController::class, 'update'])->name('contactanos.update');
         Route::delete('/contactanos/{content}', [ContactanosController::class, 'destroy'])->name('contactanos.destroy');
         Route::delete('/contactanos/images/{image}', [ContactanosController::class, 'destroyImage'])->name('contactanos.images.destroy');
+
+            // Rutas para mensajes de contacto en Panel de Administrador 
+        Route::get('/contact-messages', [AdminContactMessagesController::class, 'index'])->name('admin.contact-messages.index');
+        Route::patch('/contact-messages/{id}/read', [AdminContactMessagesController::class, 'markAsRead'])->name('admin.contact-messages.read');
+        Route::patch('/contact-messages/{id}/status', [AdminContactMessagesController::class, 'updateStatus'])->name('admin.contact-messages.status');
+        Route::delete('/contact-messages/{id}', [AdminContactMessagesController::class, 'destroy'])->name('admin.contact-messages.destroy');
     });
 });
 
@@ -126,6 +135,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/products/update/{id}',[ProductController::class,'update'])->name('admin.products.update');
     Route::delete('/products/image/{id}',[ProductController::class,'deleteImage'])->name('admin.products.image.delete');
     Route::delete('/products/destory/{id}',[ProductController::class,'destory'])->name('admin.products.destory');
+
+        // Rutas para brands
+        Route::get('/brands', [BrandController::class, 'index'])->name('admin.brands.index');
+        Route::post('/brands/store', [BrandController::class, 'store'])->name('admin.brands.store');
+        Route::put('/brands/update/{id}', [BrandController::class, 'update'])->name('admin.brands.update');
+        Route::delete('/brands/destroy/{id}', [BrandController::class, 'destroy'])->name('admin.brands.destroy');
+
+            // Rutas para categorías
+    Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
+    Route::post('/categories/store', [CategoryController::class, 'store'])->name('admin.categories.store');
+    Route::put('/categories/update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/categories/destroy/{id}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
     
 });
 

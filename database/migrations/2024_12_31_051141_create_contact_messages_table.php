@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email');
             $table->text('message');
-            $table->enum('status', ['nuevo', 'pendiente', 'spam'])->default('nuevo');
+            $table->enum('status', ['nuevo', 'pendiente', 'spam', 'en_proceso', 'completado'])->default('nuevo');
             $table->boolean('is_read')->default(false);
             $table->timestamps();
         });

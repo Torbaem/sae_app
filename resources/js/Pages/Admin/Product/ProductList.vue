@@ -205,7 +205,7 @@ const deleteProduct = (product, index) => {
         <!-- dialog for adding product or editing product -->
         <el-dialog
             v-model="dialogVisible"
-            :title="editMode ? 'Edit product' : 'Add Product'"
+            :title="editMode ? 'Editar producto' : 'Añadir Producto'"
             width="30%"
             :before-close="handleClose"
         >
@@ -225,7 +225,7 @@ const deleteProduct = (product, index) => {
                     <label
                         for="floating_title"
                         class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                        >Title</label
+                        >Nombre Del Producto</label
                     >
                 </div>
                 <div class="relative z-0 w-full mb-6 group">
@@ -241,7 +241,7 @@ const deleteProduct = (product, index) => {
                     <label
                         for="floating_price"
                         class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                        >Price</label
+                        >Precio</label
                     >
                 </div>
                 <div class="relative z-0 w-full mb-6 group">
@@ -257,7 +257,7 @@ const deleteProduct = (product, index) => {
                     <label
                         for="floating_qty"
                         class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                        >Quantity</label
+                        >Cantidad</label
                     >
                 </div>
 
@@ -265,7 +265,7 @@ const deleteProduct = (product, index) => {
                     <label
                         for="countries"
                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                        >Select Category</label
+                        >Seleccionar Categoría</label
                     >
                     <select
                         id="countries"
@@ -286,7 +286,7 @@ const deleteProduct = (product, index) => {
                     <label
                         for="countries"
                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                        >Select Brand</label
+                        >Seleccionar Marca</label
                     >
                     <select
                         id="countries"
@@ -308,14 +308,14 @@ const deleteProduct = (product, index) => {
                         <label
                             for="message"
                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >Description</label
+                            >Descripción </label
                         >
                         <textarea
                             id="message"
                             rows="4"
                             v-model="description"
                             class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="Leave a comment..."
+                            placeholder="Deja un pequeño comentario..."
                         ></textarea>
                     </div>
                 </div>
@@ -368,7 +368,7 @@ const deleteProduct = (product, index) => {
                     type="submit"
                     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
-                    Submit
+                    Guardar
                 </button>
             </form>
 
@@ -450,16 +450,16 @@ const deleteProduct = (product, index) => {
                         >
                             <tr>
                                 <th scope="col" class="px-4 py-3">
-                                    Product name
+                                    Nombre del Producto
                                 </th>
-                                <th scope="col" class="px-4 py-3">Category</th>
-                                <th scope="col" class="px-4 py-3">Brand</th>
-                                <th scope="col" class="px-4 py-3">Quantity</th>
-                                <th scope="col" class="px-4 py-3">Price</th>
-                                <th scope="col" class="px-4 py-3">Stock</th>
-                                <th scope="col" class="px-4 py-3">Publish</th>
+                                <th scope="col" class="px-4 py-3">Categoría</th>
+                                <th scope="col" class="px-4 py-3">Marca</th>
+                                <th scope="col" class="px-4 py-3">Cantidad</th>
+                                <th scope="col" class="px-4 py-3">Precio</th>
+                                <th scope="col" class="px-4 py-3">Existencias</th>
+                                <th scope="col" class="px-4 py-3">Estado</th>
                                 <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Actions</span>
+                                    <span class="sr-only">Acciones</span>
                                 </th>
                             </tr>
                         </thead>
@@ -490,12 +490,12 @@ const deleteProduct = (product, index) => {
                                     <span
                                         v-if="product.inStock == 0"
                                         class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
-                                        >inStock</span
+                                        >En Existencias</span
                                     >
                                     <span
                                         v-else
                                         class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
-                                        >Out of Stock</span
+                                        >Agotado</span
                                     >
                                 </td>
                                 <td class="px-4 py-3">
@@ -504,14 +504,14 @@ const deleteProduct = (product, index) => {
                                         type="button"
                                         class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
                                     >
-                                        Published
+                                        Publicado
                                     </button>
                                     <button
                                         v-else
                                         type="button"
                                         class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
                                     >
-                                        UnPublished
+                                        Oculto
                                     </button>
                                 </td>
 
@@ -551,7 +551,7 @@ const deleteProduct = (product, index) => {
                                                         openEditModal(product)
                                                     "
                                                     class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                                    >Edit</a
+                                                    >Editar</a
                                                 >
                                             </li>
                                         </ul>
@@ -565,7 +565,7 @@ const deleteProduct = (product, index) => {
                                                     )
                                                 "
                                                 class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                                                >Delete</a
+                                                >Eliminar</a
                                             >
                                         </div>
                                     </div>
