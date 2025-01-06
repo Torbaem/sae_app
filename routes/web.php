@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\AdminContactMessagesController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\NosotrosController as ControllersNosotrosController;
 use App\Http\Controllers\ProfileController;
@@ -128,6 +129,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'redirectAdmin'], function ()
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/monthly-sales', [AdminController::class, 'getMonthlySales']);
 
     //products routes 
     Route::get('/products', [ProductController::class, 'index'])->name('admin.products.index');
@@ -148,6 +150,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/categories/update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
     Route::delete('/categories/destroy/{id}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
     
+        // Rutas de órdenes
+        Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
+        Route::put('/orders/{id}/shipping-status', [OrderController::class, 'updateShippingStatus'])
+                ->name('admin.orders.shipping.update');
 });
 
 //end
