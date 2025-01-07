@@ -36,6 +36,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
 Route::get('/dashboard',[DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::put('/orders/{order}/shipping-status', [DashboardController::class, 'updateShippingStatus'])
+    ->middleware(['auth', 'verified'])->name('orders.update-status');
 
 
 //About us
