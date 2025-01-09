@@ -41,7 +41,7 @@ class CheckoutController extends Controller
             $lineItems[] =
                 [
                     'price_data' => [
-                        'currency' => 'usd',
+                        'currency' => 'mxn',
                         'product_data' => [
                             'name' => $item['title'],
                         ],
@@ -143,4 +143,8 @@ class CheckoutController extends Controller
             throw new NotFoundHttpException();
         }
     }
+    public function cancel()
+{
+    return redirect()->route('home')->with('error', 'Payment was cancelled.');
+}
 }

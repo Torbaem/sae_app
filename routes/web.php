@@ -131,7 +131,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'redirectAdmin'], function ()
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/monthly-sales', [AdminController::class, 'getMonthlySales']);
+    Route::get('/monthly-sales', [AdminController::class, 'getMonthlySales'])->name('admin.monthly-sales');
 
     //products routes 
     Route::get('/products', [ProductController::class, 'index'])->name('admin.products.index');

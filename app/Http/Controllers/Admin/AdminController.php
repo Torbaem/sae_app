@@ -30,17 +30,18 @@ class AdminController extends Controller
         $startOfWeek = $now->copy()->startOfWeek(Carbon::SUNDAY);
         $endOfWeek = $now->copy()->endOfWeek(Carbon::SATURDAY);
 
-        // Obtener ventas
-        $weekSales = Order::whereBetween('created_at', [
-                $startOfWeek->copy()->startOfDay(),
-                $endOfWeek->copy()->endOfDay()
-            ])
-            ->selectRaw('DATE(created_at) as date, SUM(total_price) as total')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
+// Obtener ventas (solo pagadas)
+$weekSales = Order::where('status', 'paid')  // Agregar este filtro
+    ->whereBetween('created_at', [
+        $startOfWeek->copy()->startOfDay(),
+        $endOfWeek->copy()->endOfDay()
+    ])
+    ->selectRaw('DATE(created_at) as date, SUM(total_price) as total')
+    ->groupBy('date')
+    ->orderBy('date')
+    ->get();
 
-        $totalWeekSales = $weekSales->sum('total');
+$totalWeekSales = $weekSales->sum('total');
 
 
     // Obtener solo los meses donde hay ventas pagadas
@@ -92,16 +93,26 @@ class AdminController extends Controller
 
     public function getMonthlySales(Request $request)
     {
-        $year = $request->year;
-        $month = $request->month;
-    
-        $totalSales = Order::where('status', 'paid')
-            ->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month)
-            ->sum('total_price');
-    
-        return response()->json([
-            'total' => $totalSales
+        $validated = $request->validate([
+            'year' => 'required|integer',
+            'month' => 'required|integer|between:1,12',
         ]);
+    
+        try {
+            $totalSales = Order::where('status', 'paid')
+                ->whereYear('created_at', $validated['year'])
+                ->whereMonth('created_at', $validated['month'])
+                ->sum('total_price');
+    
+            return response()->json([
+                'total' => $totalSales,
+                'success' => true
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al obtener las ventas',
+                'success' => false
+            ], 500);
+        }
     }
 }

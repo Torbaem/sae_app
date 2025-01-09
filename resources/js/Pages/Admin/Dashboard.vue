@@ -174,27 +174,24 @@
                 </div>
             </div>
 
-
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div
-                    class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
+                    class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-auto min-h-[12rem] md:h-72"
                 >
-                <WeeklySalesCard
-                    :week-sales="weekSales"
-                    :total-week-sales="totalWeekSales"
-                    :week-range="weekRange"
-                />
-                
+                    <WeeklySalesCard
+                        :week-sales="weekSales"
+                        :total-week-sales="totalWeekSales"
+                        :week-range="weekRange"
+                    />
                 </div>
                 <div
-                    class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
+                    class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-auto min-h-[12rem] md:h-72"
                 >
-                <MonthlySalesCard
-                    :initial-sales="monthSales"
-                    :initial-total="totalMonthSales"
-                    :sales-months="salesMonths"
-                    :current-period="currentPeriod"
-                />
+                    <MonthlySalesCard
+                        :initial-total="totalMonthSales"
+                        :sales-months="salesMonths"
+                        :current-period="currentPeriod"
+                    />
                 </div>
             </div>
         </div>
@@ -222,9 +219,6 @@ defineProps({
     salesMonths: Array,
     currentPeriod: Object,
 });
-
-
-
 
 onMounted(() => {
     initFlowbite();
