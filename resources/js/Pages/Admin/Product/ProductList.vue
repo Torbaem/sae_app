@@ -199,6 +199,12 @@ const deleteProduct = (product, index) => {
         }
     });
 };
+const toggleDropdown = (id) => {
+    const dropdown = document.getElementById(`dropdown-${id}`);
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
+    }
+}
 </script>
 <template>
     <section class="p-3 sm:p-5">
@@ -308,8 +314,8 @@ const deleteProduct = (product, index) => {
                         <label
                             for="message"
                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >Descripción </label
-                        >
+                            >Descripción
+                        </label>
                         <textarea
                             id="message"
                             rows="4"
@@ -441,121 +447,140 @@ const deleteProduct = (product, index) => {
                         </button>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table
-                        class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+                <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-4 py-3">Nombre del Producto</th>
+                        <th scope="col" class="px-4 py-3">Categoría</th>
+                        <th scope="col" class="px-4 py-3">Marca</th>
+                        <th scope="col" class="px-4 py-3">Cantidad</th>
+                        <th scope="col" class="px-4 py-3">Precio</th>
+                        <th scope="col" class="px-4 py-3">Existencias</th>
+                        <th scope="col" class="px-4 py-3">Estado</th>
+                        <th scope="col" class="px-4 py-3">
+                            <span class="sr-only">Acciones</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(product, index) in products" 
+                        :key="product.id" 
+                        class="border-b dark:border-gray-700">
+                        <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {{ product.title }}
+                        </th>
+                        <td class="px-4 py-3">{{ product.category.name }}</td>
+                        <td class="px-4 py-3">{{ product.brand.name }}</td>
+                        <td class="px-4 py-3">{{ product.quantity }}</td>
+                        <td class="px-4 py-3">${{ product.price }}</td>
+                        <td class="px-4 py-3">
+                            <span v-if="product.inStock == 0"
+                                class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
+                                En Existencias
+                            </span>
+                            <span v-else
+                                class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">
+                                Agotado
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <button v-if="product.published == 0"
+                                class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                Publicado
+                            </button>
+                            <button v-else
+                                class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                                Oculto
+                            </button>
+                        </td>
+                        <td class="px-4 py-3 flex items-center justify-end">
+                            <!-- Menú de acciones -->
+                            <div class="relative">
+                                <button :id="`${product.id}-button`"
+                                    class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                                    @click="toggleDropdown(product.id)">
+                                    <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                                    </svg>
+                                </button>
+                                <div :id="`dropdown-${product.id}`"
+                                    class="hidden absolute right-0 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                                        <li>
+                                            <a href="#" @click="openEditModal(product)"
+                                                class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                                Editar
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" @click="deleteProduct(product, index)"
+                                                class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                                                Eliminar
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+                <!-- Vista móvil -->
+                <div class="md:hidden">
+                    <div
+                        v-for="(product, index) in products"
+                        :key="product.id"
+                        class="bg-white dark:bg-gray-800 shadow-sm rounded-lg mb-4 p-4"
                     >
-                        <thead
-                            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-                        >
-                            <tr>
-                                <th scope="col" class="px-4 py-3">
-                                    Nombre del Producto
-                                </th>
-                                <th scope="col" class="px-4 py-3">Categoría</th>
-                                <th scope="col" class="px-4 py-3">Marca</th>
-                                <th scope="col" class="px-4 py-3">Cantidad</th>
-                                <th scope="col" class="px-4 py-3">Precio</th>
-                                <th scope="col" class="px-4 py-3">Existencias</th>
-                                <th scope="col" class="px-4 py-3">Estado</th>
-                                <th scope="col" class="px-4 py-3">
-                                    <span class="sr-only">Acciones</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="(product, index) in products"
-                                :key="product.id"
-                                class="border-b dark:border-gray-700"
+                        <div class="flex justify-between items-start mb-3">
+                            <h3
+                                class="font-medium text-gray-900 dark:text-white"
                             >
-                                <th
-                                    scope="row"
-                                    class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                {{ product.title }}
+                            </h3>
+                            <div class="relative">
+                                <button
+                                    :id="`mobile-${product.id}-button`"
+                                    class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                                    @click="
+                                        toggleDropdown(`mobile-${product.id}`)
+                                    "
                                 >
-                                    {{ product.title }}
-                                </th>
-                                <td class="px-4 py-3">
-                                    {{ product.category.name }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    {{ product.brand.name }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    {{ product.quantity }}
-                                </td>
-                                <td class="px-4 py-3">${{ product.price }}</td>
-
-                                <td class="px-4 py-3">
-                                    <span
-                                        v-if="product.inStock == 0"
-                                        class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
-                                        >En Existencias</span
+                                    <svg
+                                        class="w-5 h-5"
+                                        aria-hidden="true"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
                                     >
-                                    <span
-                                        v-else
-                                        class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
-                                        >Agotado</span
-                                    >
-                                </td>
-                                <td class="px-4 py-3">
-                                    <button
-                                        v-if="product.published == 0"
-                                        type="button"
-                                        class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-                                    >
-                                        Publicado
-                                    </button>
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                                    >
-                                        Oculto
-                                    </button>
-                                </td>
-
-                                <td
-                                    class="px-4 py-3 flex items-center justify-end"
+                                        <path
+                                            d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"
+                                        />
+                                    </svg>
+                                </button>
+                                <!-- Menú móvil -->
+                                <div
+                                    :id="`dropdown-mobile-${product.id}`"
+                                    class="hidden absolute right-0 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
                                 >
-                                    <button
-                                        :id="`${product.id}-button`"
-                                        :data-dropdown-toggle="`${product.id}`"
-                                        class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
-                                        type="button"
+                                    <ul
+                                        class="py-1 text-sm text-gray-700 dark:text-gray-200"
                                     >
-                                        <svg
-                                            class="w-5 h-5"
-                                            aria-hidden="true"
-                                            fill="currentColor"
-                                            viewbox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"
-                                            />
-                                        </svg>
-                                    </button>
-                                    <div
-                                        :id="`${product.id}`"
-                                        class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                                    >
-                                        <ul
-                                            class="py-1 text-sm text-gray-700 dark:text-gray-200"
-                                            :aria-labelledby="`${product.id}-button`"
-                                        >
-                                            <li>
-                                                <a
-                                                    href="#"
-                                                    @click="
-                                                        openEditModal(product)
-                                                    "
-                                                    class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                                    >Editar</a
-                                                >
-                                            </li>
-                                        </ul>
-                                        <div class="py-1">
+                                        <li>
+                                            <a
+                                                href="#"
+                                                @click="openEditModal(product)"
+                                                class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                            >
+                                                Editar
+                                            </a>
+                                        </li>
+                                        <li>
                                             <a
                                                 href="#"
                                                 @click="
@@ -565,14 +590,84 @@ const deleteProduct = (product, index) => {
                                                     )
                                                 "
                                                 class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                                                >Eliminar</a
                                             >
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                                Eliminar
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-500 dark:text-gray-400"
+                                    >Categoría:</span
+                                >
+                                <span class="text-gray-900 dark:text-white">{{
+                                    product.category.name
+                                }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500 dark:text-gray-400"
+                                    >Marca:</span
+                                >
+                                <span class="text-gray-900 dark:text-white">{{
+                                    product.brand.name
+                                }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500 dark:text-gray-400"
+                                    >Cantidad:</span
+                                >
+                                <span class="text-gray-900 dark:text-white">{{
+                                    product.quantity
+                                }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500 dark:text-gray-400"
+                                    >Precio:</span
+                                >
+                                <span class="text-gray-900 dark:text-white"
+                                    >${{ product.price }}</span
+                                >
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500 dark:text-gray-400"
+                                    >Existencias:</span
+                                >
+                                <span
+                                    v-if="product.inStock == 0"
+                                    class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
+                                >
+                                    En Existencias
+                                </span>
+                                <span
+                                    v-else
+                                    class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
+                                >
+                                    Agotado
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500 dark:text-gray-400"
+                                    >Estado:</span
+                                >
+                                <button
+                                    v-if="product.published == 0"
+                                    class="px-3 py-2 text-xs font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                                >
+                                    Publicado
+                                </button>
+                                <button
+                                    v-else
+                                    class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                                >
+                                    Oculto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

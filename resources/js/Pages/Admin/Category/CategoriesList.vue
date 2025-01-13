@@ -10,9 +10,8 @@
                 Agregar Nueva Categoría
             </button>
         </div>
-
-        <!-- Tabla de categorías -->
-        <div class="overflow-x-auto bg-white rounded-lg shadow">
+        <!-- Vista de escritorio -->
+        <div class="hidden md:block overflow-x-auto bg-white rounded-lg shadow">
             <table class="min-w-full">
                 <thead class="bg-gray-50">
                     <tr>
@@ -42,6 +41,44 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Vista móvil -->
+        <div class="md:hidden space-y-4">
+            <div v-for="category in categories" 
+                 :key="category.id" 
+                 class="bg-white rounded-lg shadow p-4">
+                
+                <div class="space-y-3">
+                    <!-- Nombre -->
+                    <div class="flex flex-col">
+                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre:</span>
+                        <span class="mt-1 text-gray-900">{{ category.name }}</span>
+                    </div>
+
+                    <!-- Slug -->
+                    <div class="flex flex-col">
+                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Slug:</span>
+                        <span class="mt-1 text-gray-900">{{ category.slug }}</span>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="flex space-x-2 pt-2">
+                        <button
+                            @click="editCategory(category)"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+                        >
+                            Editar
+                        </button>
+                        <button
+                            @click="deleteCategory(category.id)"
+                            class="flex-1 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm"
+                        >
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Modal para agregar/editar categoría -->

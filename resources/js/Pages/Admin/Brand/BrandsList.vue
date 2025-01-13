@@ -11,8 +11,8 @@
             </button>
         </div>
 
-        <!-- Tabla de marcas -->
-        <div class="overflow-x-auto">
+        <!-- Vista de escritorio -->
+        <div class="hidden md:block overflow-x-auto">
             <table class="min-w-full bg-white">
                 <thead class="bg-gray-100">
                     <tr>
@@ -22,17 +22,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr
-                        v-for="brand in brands"
-                        :key="brand.id"
-                        class="border-b"
-                    >
+                    <tr v-for="brand in brands" :key="brand.id" class="border-b">
                         <td class="py-2 px-4">{{ brand.name }}</td>
                         <td class="py-2 px-4">{{ brand.slug }}</td>
                         <td class="py-2 px-4">
                             <button
                                 @click="editBrand(brand)"
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3  items-center rounded mr-2"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded mr-2"
                             >
                                 Editar
                             </button>
@@ -46,6 +42,44 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Vista móvil -->
+        <div class="md:hidden">
+            <div v-for="brand in brands" 
+                 :key="brand.id" 
+                 class="bg-white shadow rounded-lg mb-4 p-4">
+                
+                <div class="space-y-3">
+                    <!-- Nombre -->
+                    <div class="flex flex-col">
+                        <span class="text-gray-600 text-sm font-medium">Nombre:</span>
+                        <span class="text-gray-900">{{ brand.name }}</span>
+                    </div>
+
+                    <!-- Slug -->
+                    <div class="flex flex-col">
+                        <span class="text-gray-600 text-sm font-medium">Slug:</span>
+                        <span class="text-gray-900">{{ brand.slug }}</span>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="flex space-x-2 pt-2">
+                        <button
+                            @click="editBrand(brand)"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+                        >
+                            Editar
+                        </button>
+                        <button
+                            @click="deleteBrand(brand.id)"
+                            class="flex-1 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm"
+                        >
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Modal para agregar/editar marca -->

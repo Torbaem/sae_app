@@ -244,22 +244,19 @@ watch([successMessage, errorMessage], () => {
                 <div class="bg-white p-4 rounded-lg">Procesando...</div>
             </div>
 
-            <!-- Cards Productores Vista normal  -->
-            <div
-                v-if="!auth.user || (auth.user && !auth.user.isAdmin)"
-                class="overflow-x-auto"
-            >
-                <div class="grid gap-6 p-4">
-                    <!-- Card de Productor -->
-                    <div
-                        v-for="producer in producers"
-                        :key="producer.id"
-                        class="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row gap-6"
-                    >
-                        <!-- Columna Izquierda: Imagen -->
-                        <div class="w-full md:w-1/4">
+            <!-- Grid de Cards Responsivo -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
+                <!-- Card de Productor -->
+                <div
+                    v-for="producer in producers"
+                    :key="producer.id"
+                    class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg"
+                >
+                    <div class="flex flex-col lg:flex-row">
+                        <!-- Imagen -->
+                        <div class="w-full lg:w-1/4">
                             <div
-                                class="aspect-w-3 aspect-h-4 w-full overflow-hidden rounded-lg bg-gray-100"
+                                class="aspect-w-16 aspect-h-9 lg:aspect-h-full"
                             >
                                 <img
                                     :src="getImagePath(producer)"
@@ -269,38 +266,65 @@ watch([successMessage, errorMessage], () => {
                             </div>
                         </div>
 
-                        <!-- Columna Derecha: Contenido -->
-                        <div class="flex-1 flex flex-col">
-                            <!-- Nombre del Productor -->
+                        <!-- Contenido -->
+                        <div class="flex-1 p-6">
+                            <!-- Botones Admin -->
+                            <div
+                                v-if="auth.user?.isAdmin"
+                                class="flex justify-end gap-2 mb-4"
+                            >
+                                <button
+                                    @click="editProducer(producer)"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="h-5 w-5"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+                                        />
+                                    </svg>
+                                    Editar
+                                </button>
+                                <button
+                                    @click="deleteProducer(producer.id)"
+                                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                                >
+                                    Eliminar
+                                </button>
+                            </div>
+
+                            <!-- Título -->
                             <h3
-                                class="text-xl font-bold border-b border-gray-200 pb-2 mb-4"
+                                class="text-xl font-bold mb-4 border-b border-gray-200 pb-2"
                             >
                                 {{ producer.name }}
                             </h3>
 
-                            <!-- Contenido/Texto -->
-                            <div class="flex-grow mb-4">
-                                <h3
-                                    class="text-gray-700 leading-relaxed whitespace-pre-line"
-                                >
+                            <!-- Contenido -->
+                            <div class="prose max-w-none mb-6">
+                                <p class="text-gray-700 whitespace-pre-line">
                                     {{ producer.content }}
-                                </h3>
+                                </p>
                             </div>
 
-                            <!-- Video de YouTube -->
+                            <!-- Video -->
                             <div
                                 v-if="producer.youtube_url"
-                                class="w-full h-full aspect-w-16 aspect-h-16 mt-4"
+                                class="aspect-w-16 aspect-h-9 mt-4"
                             >
                                 <iframe
                                     :src="
                                         getYoutubeEmbedUrl(producer.youtube_url)
                                     "
+                                    width="500px"
+                                    height="300px"
                                     frameborder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowfullscreen
-                                    width="900"
-                                    height="500"
                                 ></iframe>
                             </div>
                         </div>
@@ -308,150 +332,27 @@ watch([successMessage, errorMessage], () => {
                 </div>
             </div>
 
-            <!-- Cards de prodcutores  Editables-->
-            <div v-if="auth.user && auth.user.isAdmin">
-                <h1 class="text-2xl mb-6">Vista de Editor</h1>
-                <div class="overflow-x-auto">
-                    <div class="grid gap-6 p-4">
-                        <!-- Card de Productor -->
-                        <div
-                            v-for="producer in producers"
-                            :key="producer.id"
-                            class="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row gap-6"
-                        >
-                            <!-- Columna Izquierda: Imagen -->
-                            <div class="w-full md:w-1/4">
-                                <div
-                                    class="aspect-w-3 aspect-h-4 w-full overflow-hidden rounded-lg bg-gray-100"
-                                >
-                                    <img
-                                        :src="getImagePath(producer)"
-                                        :alt="producer.name"
-                                        class="w-full h-full object-cover"
-                                    />
-                                </div>
-                            </div>
-
-                            <!-- Columna Derecha: Contenido -->
-                            <div class="flex-1 flex flex-col">
-                                <!-- Botones de Acción -->
-                                <div
-                                    class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-200"
-                                >
-                                    <button
-                                        @click="editProducer(producer)"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="h-5 w-5"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                        >
-                                            <path
-                                                d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
-                                            />
-                                        </svg>
-                                        Editar
-                                    </button>
-                                    <button
-                                        @click="deleteProducer(producer.id)"
-                                        class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg transition duration-200"
-                                    >
-                                        Eliminar
-                                    </button>
-                                </div>
-                                <!-- Nombre del Productor -->
-                                <h3
-                                    class="text-xl font-bold border-b border-gray-200 pb-2 mb-4"
-                                >
-                                    {{ producer.name }}
-                                </h3>
-
-                                <!-- Contenido/Texto -->
-                                <div class="flex-grow mb-4">
-                                    <h3
-                                        class="text-gray-700 leading-relaxed whitespace-pre-line"
-                                    >
-                                        {{ producer.content }}
-                                    </h3>
-                                </div>
-
-                                <!-- Video de YouTube -->
-                                <div
-                                    v-if="producer.youtube_url"
-                                    class="w-full h-full aspect-w-16 aspect-h-16 mt-4"
-                                >
-                                    <iframe
-                                        :src="
-                                            getYoutubeEmbedUrl(
-                                                producer.youtube_url
-                                            )
-                                        "
-                                        frameborder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen
-                                        width="500"
-                                        height="300"
-                                    ></iframe>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button
-                    @click="openAddModal"
-                    class="flex items-center justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+            <!-- Botón Agregar (Solo Admin) -->
+            <button
+                v-if="auth.user?.isAdmin"
+                @click="openAddModal"
+                class="fixed bottom-6 right-6 flex items-center justify-center text-white bg-blue-700 hover:bg-blue-800 rounded-full p-4 shadow-lg"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                 >
-                    <svg
-                        width="30px"
-                        height="30px"
-                        viewBox="0 0 32 32"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                        xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
-                        fill="#ffffff"
-                        stroke="#ffffff"
-                        class="mr-2"
-                    >
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g
-                            id="SVGRepo_tracerCarrier"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        ></g>
-                        <g id="SVGRepo_iconCarrier">
-                            <title>plus-circle</title>
-                            <desc>Created with Sketch Beta.</desc>
-                            <defs></defs>
-                            <g
-                                id="Page-1"
-                                stroke="none"
-                                stroke-width="1"
-                                fill="none"
-                                fill-rule="evenodd"
-                                sketch:type="MSPage"
-                            >
-                                <g
-                                    id="Icon-Set"
-                                    sketch:type="MSLayerGroup"
-                                    transform="translate(-464.000000, -1087.000000)"
-                                    fill="#ffffff"
-                                >
-                                    <path
-                                        d="M480,1117 C472.268,1117 466,1110.73 466,1103 C466,1095.27 472.268,1089 480,1089 C487.732,1089 494,1095.27 494,1103 C494,1110.73 487.732,1117 480,1117 L480,1117 Z M480,1087 C471.163,1087 464,1094.16 464,1103 C464,1111.84 471.163,1119 480,1119 C488.837,1119 496,1111.84 496,1103 C496,1094.16 488.837,1087 480,1087 L480,1087 Z M486,1102 L481,1102 L481,1097 C481,1096.45 480.553,1096 480,1096 C479.447,1096 479,1096.45 479,1097 L479,1102 L474,1102 C473.447,1102 473,1102.45 473,1103 C473,1103.55 473.447,1104 474,1104 L479,1104 L479,1109 C479,1109.55 479.447,1110 480,1110 C480.553,1110 481,1109.55 481,1109 L481,1104 L486,1104 C486.553,1104 487,1103.55 487,1103 C487,1102.45 486.553,1102 486,1102 L486,1102 Z"
-                                        id="plus-circle"
-                                        sketch:type="MSShapeGroup"
-                                    ></path>
-                                </g>
-                            </g>
-                        </g>
-                    </svg>
-                    Añadir Productor
-                </button>
-            </div>
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                    />
+                </svg>
+            </button>
 
             <!-- Formulario -->
 
