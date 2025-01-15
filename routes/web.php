@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AdminContactMessagesController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\NosotrosController as ControllersNosotrosController;
 use App\Http\Controllers\ProfileController;
@@ -132,6 +133,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'redirectAdmin'], function ()
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/monthly-sales', [AdminController::class, 'getMonthlySales'])->name('admin.monthly-sales');
+
+    //Rutas para manejo de Usurios
+    Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::post('/users', [AdminUserController::class, 'store'])->name('admin.users.store');
+    Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 
     //products routes 
     Route::get('/products', [ProductController::class, 'index'])->name('admin.products.index');

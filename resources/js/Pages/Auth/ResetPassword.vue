@@ -5,6 +5,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 
 const props = defineProps({
     email: {
@@ -36,8 +37,13 @@ const submit = () => {
         <Head title="Reset Password" />
 
         <form @submit.prevent="submit">
+            <div class="flex justify-center mb-6">
+                <Link href="/">
+                    <ApplicationLogo class="w-30 h-20 fill-current text-gray-500" />
+                </Link>
+            </div>
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Correo Electrónico" />
 
                 <TextInput
                     id="email"
@@ -53,7 +59,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Contraseña" />
 
                 <TextInput
                     id="password"
@@ -68,7 +74,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
+                <InputLabel for="password_confirmation" value="Confirmar Contraseña" />
 
                 <TextInput
                     id="password_confirmation"
@@ -84,7 +90,7 @@ const submit = () => {
 
             <div class="flex items-center justify-end mt-4">
                 <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Reset Password
+                    Restablecer contraseña
                 </PrimaryButton>
             </div>
         </form>

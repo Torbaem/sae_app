@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Sierra Alta Especial</title>
+        <title>Sierra Alta Especial </title>
         <link rel="icon" type="image/ico" href="http://[::1]:5173/public/img/LogoSae_solo.png">
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
